@@ -9,6 +9,11 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -21,6 +26,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -84,6 +91,9 @@ public class MainActivity extends AppCompatActivity {
         if (!isGpsEnabled) {
         }
             requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
+
+        BluetoothLeScanner bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -99,15 +109,42 @@ public class MainActivity extends AppCompatActivity {
         System.out.println(bluetoothAdapter.getScanMode());
         System.out.println(BluetoothAdapter.SCAN_MODE_NONE);
 
-        return bluetoothAdapter.startDiscovery();
+        bluetoothLeScanner.stopScan(bluetoothLEScanCallback);
+        bluetoothLeScanner.startScan(Collections.singletonList(new ScanFilter.Builder().build()), new ScanSettings.Builder().setScanMode(ScanSettings.MATCH_MODE_AGGRESSIVE).build(), bluetoothLEScanCallback);
+        return true;
     }
+
+    private final ScanCallback bluetoothLEScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            System.out.println(result.getDevice().getAddress());
+            AddToList(result.getDevice().getAddress());
+            //AddToList(result.getDevice().getName());
+        }
+    };
 
     protected void AddToList(String name) {
         LinearLayout device_list = findViewById(R.id.device_list);
 
-        TextView device = new TextView(this);
-        device.setText(name);
-        device_list.addView(device);
+        if (!IsOnList(name))
+        {
+            TextView device = new TextView(this);
+            device.setText(name);
+            device_list.addView(device);
+        }
+    }
+
+    private boolean IsOnList(String name) {
+        LinearLayout device_list = findViewById(R.id.device_list);
+
+        for (int i = 0; i < device_list.getChildCount(); i++) {
+            TextView device = (TextView) device_list.getChildAt(i);
+            if (device.getText().toString().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
