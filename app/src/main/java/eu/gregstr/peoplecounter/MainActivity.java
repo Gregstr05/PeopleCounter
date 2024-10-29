@@ -119,28 +119,39 @@ public class MainActivity extends AppCompatActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             System.out.println(result.getDevice().getAddress());
-            AddToList(result.getDevice().getAddress());
+            AddToList(result.getDevice().getName(), result.getDevice().getAddress());
             //AddToList(result.getDevice().getName());
         }
     };
 
-    protected void AddToList(String name) {
+    protected void AddToList(String name, String address) {
         LinearLayout device_list = findViewById(R.id.device_list);
 
-        if (!IsOnList(name))
+        if (!IsOnList(address))
         {
-            TextView device = new TextView(this);
-            device.setText(name);
+            LinearLayout device = new LinearLayout(this);
+            device.setOrientation(LinearLayout.VERTICAL);
+
+            TextView deviceName = new TextView(this);
+            deviceName.setText((name == null)?address:name);
+            deviceName.setTextSize(20);
+            device.addView(deviceName);
+
+            TextView deviceAddress = new TextView(this);
+            deviceAddress.setText(address);
+            device.addView(deviceAddress);
+
             device_list.addView(device);
         }
     }
 
-    private boolean IsOnList(String name) {
+    private boolean IsOnList(String address) {
         LinearLayout device_list = findViewById(R.id.device_list);
 
         for (int i = 0; i < device_list.getChildCount(); i++) {
-            TextView device = (TextView) device_list.getChildAt(i);
-            if (device.getText().toString().equals(name)) {
+            LinearLayout device = (LinearLayout) device_list.getChildAt(i);
+            TextView deviceAddress = (TextView) device.getChildAt(1);
+            if (deviceAddress.getText().toString().equals(address)) {
                 return true;
             }
         }
@@ -154,10 +165,10 @@ public class MainActivity extends AppCompatActivity {
                 // Discovery has found a device. Get the BluetoothDevice
                 // object and its info from the Intent.
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                //String deviceName = device.getName();
+                String deviceName = device.getName();
                 String deviceHardwareAddress = device.getAddress(); // MAC address
                 System.out.println(deviceHardwareAddress);
-                AddToList(deviceHardwareAddress);
+                AddToList(deviceName, deviceHardwareAddress);
             }
         }
     };
