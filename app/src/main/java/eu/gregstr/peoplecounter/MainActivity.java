@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.TimePickerDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -21,17 +23,24 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity {
 
     private BluetoothManager bluetoothManager;
+
+    private ArrayList<Device> devices = new ArrayList<Device>();
 
     // Register the permissions callback, which handles the user's response to the
     // system permissions dialog. Save the return value, an instance of
@@ -82,7 +91,27 @@ public class MainActivity extends AppCompatActivity {
 
         scanForDevices();
 
+
+        // Create the Handler object (on the main thread by default)
+        Handler handler = new Handler(Looper.getMainLooper());
+        // Define the code block to be executed
+        Runnable runnableCode = new Runnable() {
+            @Override
+            public void run() {
+                // Do something here on the main thread
+                UpdateReadOut();
+                System.out.println("Update time");
+                // Repeat this the same runnable code block again another 2 seconds
+                // 'this' is referencing the Runnable object
+                handler.postDelayed(this, 2000);
+            }
+        };
+        // Start the initial runnable task by posting through the handler
+        handler.post(runnableCode);
+
     }
+
+
 
     private boolean scanForDevices() {
         BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
@@ -119,33 +148,92 @@ public class MainActivity extends AppCompatActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             System.out.println(result.getDevice().getAddress());
-            AddToList(result.getDevice().getName(), result.getDevice().getAddress());
+            UpdateList(result.getDevice().getName(), result.getDevice().getAddress());
             //AddToList(result.getDevice().getName());
         }
     };
 
-    protected void AddToList(String name, String address) {
-        LinearLayout device_list = findViewById(R.id.device_list);
-
+    private void UpdateList(String name, String address) {
+        TextView deviceCount = findViewById(R.id.textView);
+        deviceCount.setText(String.format("%d %s", devices.size(), getString(R.string.devices_label)));
         if (!IsOnList(address))
         {
-            LinearLayout device = new LinearLayout(this);
-            device.setOrientation(LinearLayout.VERTICAL);
-
-            TextView deviceName = new TextView(this);
-            deviceName.setText((name == null)?address:name);
-            deviceName.setTextSize(20);
-            device.addView(deviceName);
-
-            TextView deviceAddress = new TextView(this);
-            deviceAddress.setText(address);
-            device.addView(deviceAddress);
-
-            device_list.addView(device);
+            devices.add(new Device(name, address));
+            UpdateReadOut();
         }
+
+    }
+
+    protected void UpdateReadOut() {
+        LinearLayout device_list = findViewById(R.id.device_list);
+
+        for (int i = 0; i < device_list.getChildCount(); i++) {
+            LinearLayout deviceInfo = (LinearLayout) device_list.getChildAt(i);
+            TextView deviceAddress = (TextView) deviceInfo.getChildAt(1);
+
+            if (!ShouldBeOnList(deviceAddress.getText().toString())) {
+                device_list.removeView(deviceInfo);
+            }
+        }
+
+        Iterator<Device> deviceIterator = devices.iterator();
+        while (deviceIterator.hasNext()) {
+            Device device = deviceIterator.next();
+            if (!IsStillOnList(device))
+            {
+                LinearLayout deviceInfo = new LinearLayout(this);
+                deviceInfo.setOrientation(LinearLayout.VERTICAL);
+
+                TextView deviceName = new TextView(this);
+                deviceName.setText((device.name == null)?device.address:device.name);
+                deviceName.setTextSize(20);
+                deviceInfo.addView(deviceName);
+
+                TextView deviceAddress = new TextView(this);
+                deviceAddress.setText(device.address);
+                deviceInfo.addView(deviceAddress);
+
+                device_list.addView(deviceInfo);
+
+            }
+            if (device.hearthBeat <= 0) {
+                deviceIterator.remove();
+            } else
+                device.hearthBeat -= 1;
+        }
+
+    }
+
+    private boolean IsStillOnList(Device device) {
+        LinearLayout device_list = findViewById(R.id.device_list);
+
+        for (int i = 0; i < device_list.getChildCount(); i++) {
+            LinearLayout deviceInfo = (LinearLayout) device_list.getChildAt(i);
+            TextView deviceAddress = (TextView) deviceInfo.getChildAt(1);
+            if (deviceAddress.getText().toString().equals(device.address)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean ShouldBeOnList(String address) {
+        for (Device device : devices) {
+            if (device.address.equalsIgnoreCase(address))
+                return true;
+        }
+        return false;
     }
 
     private boolean IsOnList(String address) {
+        for (Device device : devices) {
+            if (device.address.equalsIgnoreCase(address))
+                return true;
+        }
+        return false;
+
+        // Old linearLayout list search method
+        /*
         LinearLayout device_list = findViewById(R.id.device_list);
 
         for (int i = 0; i < device_list.getChildCount(); i++) {
@@ -155,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         }
-        return false;
+        return false;*/
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -168,7 +256,7 @@ public class MainActivity extends AppCompatActivity {
                 String deviceName = device.getName();
                 String deviceHardwareAddress = device.getAddress(); // MAC address
                 System.out.println(deviceHardwareAddress);
-                AddToList(deviceName, deviceHardwareAddress);
+                UpdateList(deviceName, deviceHardwareAddress);
             }
         }
     };
@@ -180,5 +268,16 @@ public class MainActivity extends AppCompatActivity {
 
         // Don't forget to unregister the ACTION_FOUND receiver.
         unregisterReceiver(receiver);
+    }
+}
+
+class Device {
+    public String name;
+    public String address;
+    public int hearthBeat = 20;
+
+    public Device(String name, String address) {
+        this.name = name;
+        this.address = address;
     }
 }
