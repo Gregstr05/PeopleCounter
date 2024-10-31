@@ -42,6 +42,20 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Device> devices = new ArrayList<Device>();
 
+    Handler handler = new Handler(Looper.getMainLooper());
+
+    private Runnable runnableCode = new Runnable() {
+        @Override
+        public void run() {
+            // Do something here on the main thread
+            UpdateReadOut();
+            System.out.println("Update time");
+            // Repeat this the same runnable code block again another 2 seconds
+            // 'this' is referencing the Runnable object
+            handler.postDelayed(this, 2000);
+        }
+    };
+
     // Register the permissions callback, which handles the user's response to the
     // system permissions dialog. Save the return value, an instance of
     // ActivityResultLauncher, as an instance variable.
@@ -58,6 +72,20 @@ public class MainActivity extends AppCompatActivity {
                     // decision.
                 }
     });
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        handler.removeCallbacks(runnableCode);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        handler.post(runnableCode);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,21 +119,6 @@ public class MainActivity extends AppCompatActivity {
 
         scanForDevices();
 
-
-        // Create the Handler object (on the main thread by default)
-        Handler handler = new Handler(Looper.getMainLooper());
-        // Define the code block to be executed
-        Runnable runnableCode = new Runnable() {
-            @Override
-            public void run() {
-                // Do something here on the main thread
-                UpdateReadOut();
-                System.out.println("Update time");
-                // Repeat this the same runnable code block again another 2 seconds
-                // 'this' is referencing the Runnable object
-                handler.postDelayed(this, 2000);
-            }
-        };
         // Start the initial runnable task by posting through the handler
         handler.post(runnableCode);
 
