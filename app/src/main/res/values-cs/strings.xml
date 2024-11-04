@@ -3,4 +3,5 @@
     <string name="app_name">PeopleCounter</string>
     <string name="search_btn">Vyhledat</string>
     <string name="devices_label">Zařízení</string>
+    <string name="stop_btn">Stop</string>
 </resources>

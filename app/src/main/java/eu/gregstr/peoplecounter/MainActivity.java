@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Device> devices = new ArrayList<Device>();
 
+    private boolean bIsSearching = false;
+
     Handler handler = new Handler(Looper.getMainLooper());
 
     private Runnable runnableCode = new Runnable() {
@@ -96,8 +98,17 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "Searching", Toast.LENGTH_SHORT).show();
-                System.out.println(scanForDevices());
+                if (bIsSearching)
+                {
+                    Toast.makeText(MainActivity.this, "Stopping Search", Toast.LENGTH_SHORT).show();
+                    BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
+                    bluetoothAdapter.getBluetoothLeScanner().stopScan(bluetoothLEScanCallback);
+                    ((Button) v).setText(getString(R.string.search_btn));
+                    bIsSearching = false;
+                } else {
+                    Toast.makeText(MainActivity.this, "Searching", Toast.LENGTH_SHORT).show();
+                    ((Button) v).setText(getString(R.string.stop_btn));
+                }
             }
         });
 
@@ -116,8 +127,6 @@ public class MainActivity extends AppCompatActivity {
 
             requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_SCAN);
         }
-
-        scanForDevices();
 
         // Start the initial runnable task by posting through the handler
         handler.post(runnableCode);
@@ -150,6 +159,8 @@ public class MainActivity extends AppCompatActivity {
         }
         System.out.println(bluetoothAdapter.getScanMode());
         System.out.println(BluetoothAdapter.SCAN_MODE_NONE);
+
+        bIsSearching = true;
 
         bluetoothLeScanner.stopScan(bluetoothLEScanCallback);
         bluetoothLeScanner.startScan(Collections.singletonList(new ScanFilter.Builder().build()), new ScanSettings.Builder().setScanMode(ScanSettings.MATCH_MODE_AGGRESSIVE).build(), bluetoothLEScanCallback);
