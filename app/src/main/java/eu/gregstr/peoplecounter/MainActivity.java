@@ -42,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ArrayList<Device> devices = new ArrayList<Device>();
 
-    private boolean bIsSearching = false;
-
     Handler handler = new Handler(Looper.getMainLooper());
 
     private Runnable runnableCode = new Runnable() {
@@ -73,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
                     // settings in an effort to convince the user to change their
                     // decision.
                 }
-    });
+            });
 
     @Override
     protected void onPause() {
@@ -98,17 +96,8 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (bIsSearching)
-                {
-                    Toast.makeText(MainActivity.this, "Stopping Search", Toast.LENGTH_SHORT).show();
-                    BluetoothAdapter bluetoothAdapter = bluetoothManager.getAdapter();
-                    bluetoothAdapter.getBluetoothLeScanner().stopScan(bluetoothLEScanCallback);
-                    ((Button) v).setText(getString(R.string.search_btn));
-                    bIsSearching = false;
-                } else {
-                    Toast.makeText(MainActivity.this, "Searching", Toast.LENGTH_SHORT).show();
-                    ((Button) v).setText(getString(R.string.stop_btn));
-                }
+                Toast.makeText(MainActivity.this, "Searching", Toast.LENGTH_SHORT).show();
+                System.out.println(scanForDevices());
             }
         });
 
@@ -128,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
             requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_SCAN);
         }
 
+        scanForDevices();
+
         // Start the initial runnable task by posting through the handler
         handler.post(runnableCode);
 
@@ -141,7 +132,7 @@ public class MainActivity extends AppCompatActivity {
         boolean isGpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         if (!isGpsEnabled) {
         }
-            requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
         requestPermissionLauncher.launch(Manifest.permission.BLUETOOTH_CONNECT);
 
         BluetoothLeScanner bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
@@ -159,8 +150,6 @@ public class MainActivity extends AppCompatActivity {
         }
         System.out.println(bluetoothAdapter.getScanMode());
         System.out.println(BluetoothAdapter.SCAN_MODE_NONE);
-
-        bIsSearching = true;
 
         bluetoothLeScanner.stopScan(bluetoothLEScanCallback);
         bluetoothLeScanner.startScan(Collections.singletonList(new ScanFilter.Builder().build()), new ScanSettings.Builder().setScanMode(ScanSettings.MATCH_MODE_AGGRESSIVE).build(), bluetoothLEScanCallback);
@@ -290,7 +279,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        // Don't forget to unregister the ACTION_FOUND receiver.
         unregisterReceiver(receiver);
     }
 }
