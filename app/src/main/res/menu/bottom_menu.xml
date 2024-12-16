@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id = "@+id/main"
+        android:title="@string/devices_label"
+        android:icon="@drawable/baseline_people_alt_24"
+        />
+    <item
+        android:id = "@+id/about"
+        android:title="@string/about"
+        android:icon="@drawable/baseline_all_inclusive_24"
+        />
+</menu>

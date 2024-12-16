@@ -8,6 +8,15 @@
     android:configChanges="orientation"
     android:screenOrientation="portrait">
 
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/action_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:menu="@menu/options_menu_default"
+        />
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
@@ -16,7 +25,7 @@
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/action_bar" />
 
     <ScrollView
         android:id="@+id/scrollView2"
@@ -45,7 +54,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/search_btn"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigationView"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_menu"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

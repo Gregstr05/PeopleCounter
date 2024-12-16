@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends NavigationActivity {
 
     private BluetoothManager bluetoothManager;
 
@@ -91,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SetBottomMenu(R.id.main);
+        SetActionBar(getString(R.string.devices_label), false);
 
         Button searchButton = findViewById(R.id.Search);
         searchButton.setOnClickListener(new View.OnClickListener() {
