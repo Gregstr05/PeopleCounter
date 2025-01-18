@@ -6,6 +6,11 @@
         android:icon="@drawable/baseline_people_alt_24"
         />
     <item
+        android:id="@+id/library"
+        android:title="@string/library"
+        android:icon="@drawable/baseline_library_books_24"
+        />
+    <item
         android:id = "@+id/about"
         android:title="@string/about"
         android:icon="@drawable/baseline_all_inclusive_24"

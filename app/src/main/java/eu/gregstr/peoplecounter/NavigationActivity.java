@@ -22,6 +22,7 @@ public class NavigationActivity extends AppCompatActivity {
     protected void SetBottomMenu(int selectedItemId) {
         Intent main = new Intent(this, MainActivity.class);
         Intent about = new Intent(this, AboutActivity.class);
+        Intent library = new Intent(this, LibraryActivity.class);
 
         bottomNav = findViewById(R.id.bottomNavigationView);
 
@@ -36,6 +37,9 @@ public class NavigationActivity extends AppCompatActivity {
                     }
                 else if (itemId == R.id.main) {
                     startActivity(main);
+                }
+                else if (itemId == R.id.library) {
+                    startActivity(library);
                 }
                 else {
                     return false;

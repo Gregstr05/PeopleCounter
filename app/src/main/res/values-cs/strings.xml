@@ -5,4 +5,5 @@
     <string name="devices_label">Zařízení</string>
     <string name="stop_btn">Stop</string>
     <string name="about">O aplikaci</string>
+    <string name="library">Knihovna</string>
 </resources>

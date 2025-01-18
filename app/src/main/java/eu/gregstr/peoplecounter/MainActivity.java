@@ -1,5 +1,7 @@
 package eu.gregstr.peoplecounter;
 
+import static java.security.AccessController.getContext;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,10 +19,12 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -41,6 +45,8 @@ public class MainActivity extends NavigationActivity {
     private BluetoothManager bluetoothManager;
 
     private ArrayList<Device> devices = new ArrayList<Device>();
+
+    DeviceLibraryContract.DeviceLibraryDbHelper dbHelper = new DeviceLibraryContract.DeviceLibraryDbHelper(this);
 
     Handler handler = new Handler(Looper.getMainLooper());
 
@@ -210,6 +216,14 @@ public class MainActivity extends NavigationActivity {
 
                 device_list.addView(deviceInfo);
 
+                // Create a new map of values, where column names are the keys
+                ContentValues values = new ContentValues();
+                values.put(DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_NAME, device.name);
+                values.put(DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_ADDRESS, device.address);
+
+                SQLiteDatabase db = dbHelper.getWritableDatabase();
+// Insert the new row, returning the primary key value of the new row
+                long newRowId = db.insert(DeviceLibraryContract.DeviceEntry.TABLE_NAME, null, values);
             }
             if (device.hearthBeat <= 0) {
                 deviceIterator.remove();
