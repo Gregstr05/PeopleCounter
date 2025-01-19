@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.lang.reflect.Array;
@@ -18,6 +19,8 @@ public class LibraryActivity extends NavigationActivity {
 
     DeviceLibraryContract.DeviceLibraryDbHelper dbHelper = new DeviceLibraryContract.DeviceLibraryDbHelper(this);
 
+    LinearLayout device_list;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,7 +28,23 @@ public class LibraryActivity extends NavigationActivity {
         SetBottomMenu(R.id.library);
         SetActionBar(getString(R.string.library), false);
 
-        LinearLayout device_list = findViewById(R.id.device_list);
+        SearchView searchBar = findViewById(R.id.searchView);
+        searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                UpdateLibrary("%"+query+"%");
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.isEmpty())
+                    UpdateLibrary("");
+                return false;
+            }
+        });
+
+        device_list = findViewById(R.id.device_list);
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -74,5 +93,57 @@ public class LibraryActivity extends NavigationActivity {
         }
     }
 
+    void UpdateLibrary(String Match) {
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+        // Define a projection that specifies which columns from the database
+// you will actually use after this query.
+        String[] projection = {
+                DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_NAME,
+                DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_ADDRESS
+        };
+
+        String sortOrder =
+                DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_NAME + " DESC";
+
+        // Filter results WHERE "title" = 'My Title'
+        String selection = DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_NAME + " like ? OR " + DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_ADDRESS + " like ?";
+        String[] selectionArgs = { Match, Match };
+
+        Cursor cursor = db.query(
+                DeviceLibraryContract.DeviceEntry.TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                (Match.isEmpty())?null:selection,              // The columns for the WHERE clause
+                (Match.isEmpty())?null:selectionArgs,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                sortOrder               // The sort order
+        );
+
+
+        ArrayList<Device> devices = new ArrayList<>();
+        while(cursor.moveToNext()) {
+            devices.add(new Device(cursor.getString(cursor.getColumnIndexOrThrow(DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_NAME)), cursor.getString(cursor.getColumnIndexOrThrow(DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_ADDRESS))));
+        }
+        cursor.close();
+
+        device_list.removeAllViewsInLayout();
+
+        for (Device device : devices)
+        {
+            LinearLayout deviceInfo = new LinearLayout(this);
+            deviceInfo.setOrientation(LinearLayout.VERTICAL);
+
+            TextView deviceName = new TextView(this);
+            deviceName.setText((device.name == null)?device.address:device.name);
+            deviceName.setTextSize(20);
+            deviceInfo.addView(deviceName);
+
+            TextView deviceAddress = new TextView(this);
+            deviceAddress.setText(device.address);
+            deviceInfo.addView(deviceAddress);
+
+            device_list.addView(deviceInfo);
+        }
+    }
 }
