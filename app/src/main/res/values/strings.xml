@@ -5,4 +5,6 @@
     <string name="stop_btn">Stop</string>
     <string name="about">About</string>
     <string name="library">Library</string>
+    <string name="app_info">Application for scanning nearby bluetooth devices</string>
+    <string name="author" translatable="false">Adam Gregořica</string>
 </resources>
