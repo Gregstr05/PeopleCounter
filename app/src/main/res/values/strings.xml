@@ -7,4 +7,5 @@
     <string name="library">Library</string>
     <string name="app_info">Application for scanning nearby bluetooth devices</string>
     <string name="author" translatable="false">Adam Gregořica</string>
+    <string name="save">Save</string>
 </resources>

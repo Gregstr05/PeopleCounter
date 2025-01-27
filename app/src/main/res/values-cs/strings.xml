@@ -7,4 +7,5 @@
     <string name="about">O aplikaci</string>
     <string name="library">Knihovna</string>
     <string name="app_info">Aplikace pro skenování bluetooth zařízení v blízkosti</string>
+    <string name="save">Uložit</string>
 </resources>
