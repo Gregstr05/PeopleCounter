@@ -222,7 +222,7 @@ public class MainActivity extends NavigationActivity {
                 values.put(DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_ADDRESS, device.address);
 
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
-// Insert the new row, returning the primary key value of the new row
+                // Insert the new row, returning the primary key value of the new row
                 long newRowId = db.insert(DeviceLibraryContract.DeviceEntry.TABLE_NAME, null, values);
             }
             if (device.hearthBeat <= 0) {
