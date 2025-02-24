@@ -1,31 +1,66 @@
 package eu.gregstr.peoplecounter;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.documentfile.provider.DocumentFile;
 
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.BaseColumns;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class LibraryActivity extends NavigationActivity {
 
     DeviceLibraryContract.DeviceLibraryDbHelper dbHelper = new DeviceLibraryContract.DeviceLibraryDbHelper(this);
 
+    private Uri baseDocumentTreeUri;
+
+    ArrayList<Device> devices = new ArrayList<>();
     LinearLayout device_list;
+
+    private ActivityResultLauncher<String> fileSelectionLauncher =
+            registerForActivityResult(new ActivityResultContracts.CreateDocument(), uri -> {
+                System.out.println(uri.toString());
+                ParcelFileDescriptor pfd = null;
+                try {
+                    pfd = getContentResolver().openFileDescriptor(uri, "w");
+                    FileOutputStream fos = new FileOutputStream(pfd.getFileDescriptor());
+
+                    StringBuilder toWrite = new StringBuilder();
+                    for (Device device : devices)
+                    {
+                        toWrite.append(device.name + ";" + device.address + "\n");
+                    }
+
+                    fos.write(toWrite.toString().getBytes());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+
+    private boolean ExportLibrary()
+    {
+        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+
+        fileSelectionLauncher.launch("Devices.csv");
+
+        return true;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -48,8 +83,7 @@ public class LibraryActivity extends NavigationActivity {
 
         int optionId = item.getItemId();
         if (optionId == R.id.save) {
-            startActivityForResult(intent , 1);
-            return true;
+            return ExportLibrary();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -60,6 +94,7 @@ public class LibraryActivity extends NavigationActivity {
         setContentView(R.layout.activity_library);
         SetBottomMenu(R.id.library);
         SetActionBar(getString(R.string.library), false);
+
 
         SearchView searchBar = findViewById(R.id.searchView);
         searchBar.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -102,7 +137,7 @@ public class LibraryActivity extends NavigationActivity {
         );
 
 
-        ArrayList<Device> devices = new ArrayList<>();
+
         while(cursor.moveToNext()) {
             devices.add(new Device(cursor.getString(cursor.getColumnIndexOrThrow(DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_NAME)), cursor.getString(cursor.getColumnIndexOrThrow(DeviceLibraryContract.DeviceEntry.COLUMN_NAME_DEVICE_ADDRESS))));
         }
