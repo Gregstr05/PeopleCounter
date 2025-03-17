@@ -9,6 +9,7 @@ import android.util.JsonReader;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.gms.common.util.JsonUtils;
 
@@ -28,6 +29,7 @@ import okhttp3.Response;
 
 public class AboutActivity extends NavigationActivity {
 
+    TextView birthday;
     OkHttpClient client = new OkHttpClient();
     public String url= "https://gregstr.eu/is-it-my-birthday.php";
 
@@ -37,6 +39,7 @@ public class AboutActivity extends NavigationActivity {
         setContentView(R.layout.activity_about);
         SetBottomMenu(R.id.about);
         SetActionBar(getString(R.string.about), true);
+        birthday = findViewById(R.id.Birthday);
 
         Request get = new Request.Builder()
                 .url(url)
@@ -57,9 +60,16 @@ public class AboutActivity extends NavigationActivity {
                     }
                     JSONObject jsonObject = new JSONObject(responseBody.string());
 
-
-
                     System.out.println(jsonObject.get("birthday"));
+
+                    if (jsonObject.get("birthday").toString().equals("true"))
+                    {
+                        birthday.setText(getString(R.string.birthday_true));
+                    }
+                    else
+                    {
+                        birthday.setText(getString(R.string.birthday_false));
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

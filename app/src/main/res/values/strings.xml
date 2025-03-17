@@ -8,4 +8,6 @@
     <string name="app_info">Application for scanning nearby bluetooth devices</string>
     <string name="author" translatable="false">Adam Gregořica</string>
     <string name="save">Save</string>
+    <string name="birthday_false">Author does not have a birthday today</string>
+    <string name="birthday_true">Today\'s the author\'s birthday 🎉</string>
 </resources>

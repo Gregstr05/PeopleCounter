@@ -8,4 +8,6 @@
     <string name="library">Knihovna</string>
     <string name="app_info">Aplikace pro skenování bluetooth zařízení v blízkosti</string>
     <string name="save">Uložit</string>
+    <string name="birthday_false">Autor dnes nemá narozeniny</string>
+    <string name="birthday_true">Dnes má autor narozeniny 🎉</string>
 </resources>
