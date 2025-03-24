@@ -205,7 +205,7 @@ public class MainActivity extends NavigationActivity {
                 LinearLayout deviceInfo = new LinearLayout(this);
                 deviceInfo.setOrientation(LinearLayout.VERTICAL);
 
-                TextView deviceName = new TextView(this);
+                TextView deviceName = new TextView(this, null, R.style.DeviceName);
                 deviceName.setText((device.name == null)?device.address:device.name);
                 deviceName.setTextSize(20);
                 deviceInfo.addView(deviceName);

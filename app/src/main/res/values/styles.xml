@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BigButton">
+        <item name="android:backgroundTint">@color/main</item>
+        <item name="android:textAlignment">center</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">25dp</item>
+    </style>
+
+    <style name="BigText">
+        <item name="android:gravity">center</item>
+        <item name="android:textAlignment">center</item>
+    </style>
+
+    <style name="DeviceName">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>
