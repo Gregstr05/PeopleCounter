@@ -10,4 +10,6 @@
     <string name="save">Save</string>
     <string name="birthday_false">Author does not have a birthday today</string>
     <string name="birthday_true">Today\'s the author\'s birthday 🎉</string>
+    <string name="email" translatable="false">Email</string>
+    <string name="github" translatable="false">Github</string>
 </resources>

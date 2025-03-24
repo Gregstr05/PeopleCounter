@@ -86,6 +86,20 @@ public class AboutActivity extends NavigationActivity {
                 startActivity(github);
             }
         });
+
+        Button emailBtn = findViewById(R.id.mail);
+
+        emailBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent mail = new Intent(Intent.ACTION_SENDTO);
+                mail.setData(Uri.parse("mailto:")); // only email apps should handle this
+                mail.putExtra(Intent.EXTRA_EMAIL, new String[] {"support@gregstr.eu"});
+                mail.putExtra(Intent.EXTRA_SUBJECT, "People Counter");
+
+                startActivity(mail);
+            }
+        });
     }
 
 
